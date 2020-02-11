@@ -1,0 +1,37 @@
+[
+  {
+    "model": "myapp.segments",
+    "pk": 1,
+    "fields": {
+      "title": "Campeões"
+    }
+  },
+  {
+    "model": "myapp.segments",
+    "pk": 2,
+    "fields": {
+      "title": "Fiéis"
+    }
+  },
+  {
+    "model": "myapp.segments",
+    "pk": 3,
+    "fields": {
+      "title": "Novos"
+    }
+  },
+  {
+    "model": "myapp.segments",
+    "pk": 4,
+    "fields": {
+      "title": "Potenciais"
+    }
+  },
+  {
+    "model": "myapp.segments",
+    "pk": 5,
+    "fields": {
+      "title": "Casuais"
+    }
+  }
+]

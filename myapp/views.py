@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.shortcuts import render_to_response
+
 
 from google_spreadsheets.models import SpreadSheetInfo
 from .forms import UploadFileForm, UserForm
@@ -16,11 +16,11 @@ from .services import get_values_from_spreadsheet, RFMCalculator
 
 
 def index(request):
-    return render_to_response('index.html')
+    return render(request, 'index.html')
 
 
 def generic(request):
-    return render_to_response("base_generic.html")
+    return render(request, "base_generic.html")
 
 
 def create_account(request):
@@ -39,6 +39,7 @@ def create_account(request):
 
 @login_required
 def dashboard(request):
+    print(dir(request.user))
     values = CustomerInfoBoundary.objects.filter(user=request.user).first()
     return render(request, "example_dashboard.html", {"boundary_frequency": values.boundary_frequency,
                                                       "boundary_monetary": values.boundary_monetary})
@@ -50,11 +51,12 @@ def upload_file(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             csv_file_buffer = io.TextIOWrapper(request.FILES["file"])
-            csv_file = csv.DictReader(csv_file_buffer, delimiter=";")
+            csv_file = csv.DictReader(csv_file_buffer, delimiter=",")
+            CustomersInfoCsv.objects.filter(user=request.user).delete()
             for info in csv_file:
                 new_customer_info = CustomersInfoCsv.objects.create(order_date=info["order_date"],
                                                                     order_value=info["order_value"],
-                                                                    customer_id=info["customer_id"],
+                                                                    customer_email=info["customer_email"],
                                                                     user=request.user)
                 new_customer_info.save()
 
@@ -64,6 +66,7 @@ def upload_file(request):
     return render(request, 'upload_customer_info_csv.html', {'form': form})
 
 
+@login_required
 def customer_info_table_csv(request):
     # Show in a table all the information from customersinfo table, allowing CRUD to the user
     values = CustomersInfoCsv.objects.filter(user=request.user)
@@ -71,25 +74,23 @@ def customer_info_table_csv(request):
     return render(request, 'customer_info_table.html', {"values": values})
 
 
-def customers_info_table_google_sheets_detailed(request):
+@login_required
+def customers_rfm_csv(request):
     # SpreadSheet it's need's to be a factory
-    values = CustomersInfoAnalysis.objects.filter(user=request.user).all()
+    values = CustomersInfoAnalysis.objects.select_related("segment").filter(user=request.user).all()
 
     return render(request, 'customers_info.html', {"values": values})
 
 
+@login_required
 def task_calculate_customers_info(request):
     # This will be a task, but for now I am using to test
     CustomersInfoAnalysis.objects.filter(user=request.user).delete()
     CustomerInfoBoundary.objects.filter(user=request.user).delete()
 
-    spread_sheet_info = SpreadSheetInfo.objects.filter(user=request.user).first()
+    values = CustomersInfoCsv.objects.filter(user=request.user).values("order_date", "order_value", "customer_email")
 
-    values = get_values_from_spreadsheet(spread_sheet_info.client_secret_file,
-                                         spread_sheet_info.spreadsheet_url,
-                                         spread_sheet_info.sheet_name)
-
-    calculator = RFMCalculator(values, 3, 4)
+    calculator = RFMCalculator(list(values), 3, 4, 13)
     calculator.calculate_values()
     values = calculator.to_dict()
 
@@ -97,7 +98,7 @@ def task_calculate_customers_info(request):
 
         order_date=record["order_date"],
         monetary=record["monetary"],
-        customer_id=record["customer_id"],
+        customer_email=record["customer_email"],
         frequency=record["frequency"],
         avg_monetary=record["avg_monetary"],
         recency=record["recency"],
@@ -106,6 +107,7 @@ def task_calculate_customers_info(request):
         std_dev_days=record["std_dev"],
         score_frequency=record["score_frequency"],
         score_monetary=record["score_monetary"],
+        segment=record["segment"],
         user=request.user
     ) for record in values]
 
@@ -116,8 +118,3 @@ def task_calculate_customers_info(request):
                                         user=request.user).save()
 
     return render(request, "example_dashboard.html")
-
-
-def results(request):
-    # Show the segments
-    return

@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -8,14 +7,22 @@ from django.contrib.auth.models import User
 class CustomersInfoCsv(models.Model):
     order_date = models.DateField(null=False)
     order_value = models.IntegerField(null=False)
-    customer_id = models.CharField(max_length=255, null=False)
+    customer_email = models.EmailField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+
+class Segments(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, null=False)
+
+    def __repr__(self):
+        return self.title
 
 
 class CustomersInfoAnalysis(models.Model):
     order_date = models.DateField(null=False)
     monetary = models.IntegerField(null=False)
-    customer_id = models.CharField(max_length=255, null=False)
+    customer_email = models.CharField(max_length=255, null=False)
     frequency = models.IntegerField(null=False)
     avg_monetary = models.FloatField(null=False)
     recency = models.IntegerField(null=False)
@@ -25,6 +32,7 @@ class CustomersInfoAnalysis(models.Model):
     score_frequency = models.IntegerField(null=False)
     score_monetary = models.IntegerField(null=False)
 
+    segment = models.ForeignKey(Segments, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
 

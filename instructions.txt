@@ -1,0 +1,2 @@
+Para subir o CSV o arquivo deve ter no mínimo 5 clientes diferentes
+setar o tempo para definir se um cliente é antigo ou não

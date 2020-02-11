@@ -7,7 +7,8 @@ import csv
 class CustomerInfoForm(forms.ModelForm):
     class Meta:
         model = CustomersInfoCsv
-        fields = ["order_date", "order_value", "customer_id", "user"]
+        fields = ["order_date", "order_value", "customer_email"
+                                               "", "user"]
 
 
 class UploadFileForm(forms.Form):
