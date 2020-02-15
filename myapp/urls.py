@@ -10,6 +10,6 @@ urlpatterns = [
     path('customers_rfm_csv', views.customers_rfm_csv,
          name="customers_rfm_csv"),
     path("task_calculate", views.task_calculate_customers_info, name="task_calculate"),
-
+    path("config_rfm", views.config_rfm, name="config_rfm"),
     path('generic', views.generic, name="generic"),
 ]

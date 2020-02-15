@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 
@@ -19,7 +20,16 @@ class Segments(models.Model):
         return self.title
 
 
+class PurchaseStatus(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, null=False)
+
+    def __repr__(self):
+        return self.title
+
+
 class CustomersInfoAnalysis(models.Model):
+    id = models.AutoField(primary_key=True)
     order_date = models.DateField(null=False)
     monetary = models.IntegerField(null=False)
     customer_email = models.CharField(max_length=255, null=False)
@@ -32,12 +42,24 @@ class CustomersInfoAnalysis(models.Model):
     score_frequency = models.IntegerField(null=False)
     score_monetary = models.IntegerField(null=False)
 
+    purchase_status = models.ForeignKey(PurchaseStatus, on_delete=models.SET_NULL, null=True)
     segment = models.ForeignKey(Segments, on_delete=models.SET_NULL, null=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class CustomerInfoBoundary(models.Model):
-    boundary_frequency = models.FloatField(null=False)
-    boundary_monetary = models.FloatField(null=False)
+    boundary_frequency = models.FloatField()
+    boundary_monetary = models.FloatField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+
+class ConfigRFM(models.Model):
+    limit_days = models.IntegerField()
+    score_boundary_frequency = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)])
+    score_boundary_monetary = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)])
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
 

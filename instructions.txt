@@ -1,2 +1,4 @@
 Para subir o CSV o arquivo deve ter no mínimo 5 clientes diferentes
 setar o tempo para definir se um cliente é antigo ou não
+aplicar as fixtures
+python manage.py loaddata myapp/fixtures/purchase_status.json

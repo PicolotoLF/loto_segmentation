@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 
-from .models import Segments
+from .models import Segments, PurchaseStatus
 from django.conf import settings
 from google_spreadsheets.credentials import get_sheet
 
@@ -55,8 +55,8 @@ class RFMCalculator:
         self._df["recency"] = pd.to_datetime(self._df["order_date"]) - pd.to_datetime(self._df["today"])
         self._df["first_purchase"] = pd.to_datetime(self._df["order_date_min"]) - pd.to_datetime(self._df["today"])
 
-        self._df["recency"] = self._df.apply(lambda x: x["recency"].days, axis=1)
-        self._df["first_purchase"] = self._df.apply(lambda x: x["first_purchase"].days, axis=1)
+        self._df["recency"] = self._df.apply(lambda x: x["recency"].days*-1, axis=1)
+        self._df["first_purchase"] = self._df.apply(lambda x: x["first_purchase"].days*-1, axis=1)
 
     def _create_dates_values(self):
         self._df_date["order_date"] = pd.to_datetime(self._df_date["order_date"])
@@ -72,7 +72,7 @@ class RFMCalculator:
                                     "diff_date": filter_values})
             new_df = new_df.append(temp_df)
 
-        new_df["diff_date"] = new_df.apply(lambda x: x["diff_date"].days, axis=1)
+        new_df["diff_date"] = new_df.apply(lambda x: x["diff_date"].days *-1, axis=1)
         new_df["customer_email"] = new_df["customer_email"]
         new_df["std_dev"] = new_df["diff_date"]
 
@@ -140,6 +140,8 @@ class RFMCalculator:
 
         self._df_merged = self._create_segment(self._df_merged)
 
+        self._df_merged = self._create_purchase_status(self._df_merged)
+
         return self._df_merged
 
     def to_dict(self):
@@ -157,10 +159,26 @@ class RFMCalculator:
     def boundary_frequency(self):
         return self._boundary_frequency
 
-        # def create_matrix():
-    #     # create matrix of between frequency and monetary
-    #     pass
-    #
+    def _create_purchase_status(self, df):
+        df["purchase_status"] = df.apply(lambda x: self._status_purchse_rules(x), axis=1)
+        return df
+
+    @staticmethod
+    def _status_purchse_rules(element):
+        # If frequency its under 6, not able to calculate the deviation
+        if element["frequency"] < 6:
+            return PurchaseStatus.objects.get(title="Sem Dados")
+
+        if element["recency"] < element["diff_date"]:
+            return PurchaseStatus.objects.get(title="Recente")
+        elif element["diff_date"] <= element["recency"] < (element["diff_date"]+element["std_dev"]):
+            return PurchaseStatus.objects.get(title="Em dia")
+        elif (element["diff_date"]+element["std_dev"]) <= element["recency"] < (element["diff_date"]+(element["std_dev"]*2)):
+            return PurchaseStatus.objects.get(title="Atraso")
+        elif (element["diff_date"]+(element["std_dev"]*2)) <= element["recency"] < (element["diff_date"]+(element["std_dev"]*3)):
+            return PurchaseStatus.objects.get(title="Atraso Crítico")
+        else:
+            return PurchaseStatus.objects.get(title="Perdido")
 
     def _create_segment(self, df):
         df["segment"] = df.apply(lambda x: self._segments_rules(x), axis=1)
@@ -175,17 +193,17 @@ class RFMCalculator:
     def _is_above_first_purchase(self, value):
         return value > self._limit_day_old_customer
 
-    def _segments_rules(self, df):
+    def _segments_rules(self, element):
         # If customer have high monetary
-        if self._is_above_monetary_boundary(df["monetary"]):
-            if self._is_above_first_purchase(df["first_purchase"]):
+        if self._is_above_monetary_boundary(element["monetary"]):
+            if self._is_above_first_purchase(element["first_purchase"]):
                 return Segments.objects.get(title="Campeões")
             else:
                 # Potenciais
                 return Segments.objects.get(title="Potenciais")
 
-        if self._is_above_frequency_boundary(df["frequency"]):
-            if self._is_above_first_purchase(df["first_purchase"]):
+        if self._is_above_frequency_boundary(element["frequency"]):
+            if self._is_above_first_purchase(element["first_purchase"]):
                 # Fiéis
                 return Segments.objects.get(title="Fiéis")
             else:

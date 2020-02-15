@@ -5,13 +5,12 @@ import io
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 
-
 from google_spreadsheets.models import SpreadSheetInfo
-from .forms import UploadFileForm, UserForm
-from .models import CustomersInfoCsv, CustomersInfoAnalysis, CustomerInfoBoundary
+from .forms import UploadFileForm, UserForm, ConfigRFMForm
+from .models import CustomersInfoCsv, CustomersInfoAnalysis, CustomerInfoBoundary, ConfigRFM
 from .services import get_values_from_spreadsheet, RFMCalculator
 
 
@@ -38,8 +37,17 @@ def create_account(request):
 
 
 @login_required
+def welcome_page(request):
+    # Page with instructions to new users
+    # Its necessary to validate all this fields
+    # 1 - Prepare and upload a CSV
+    # 2 - Set up de Boundaries
+    # 3 - Calculate
+    pass
+
+
+@login_required
 def dashboard(request):
-    print(dir(request.user))
     values = CustomerInfoBoundary.objects.filter(user=request.user).first()
     return render(request, "example_dashboard.html", {"boundary_frequency": values.boundary_frequency,
                                                       "boundary_monetary": values.boundary_monetary})
@@ -67,6 +75,29 @@ def upload_file(request):
 
 
 @login_required
+def config_rfm(request):
+    if request.method == "POST":
+        form = ConfigRFMForm(request.POST)
+        if form.is_valid():
+            # ** form.cleaned_data,
+            new_config_rfm, created = ConfigRFM.objects.update_or_create(user=request.user, defaults={**form.cleaned_data})
+            # if created is False:
+            #     new_config_rfm = ConfigRFM.objects.create(**form.cleaned_data, user=request.user)
+
+            new_config_rfm.save()
+            return HttpResponseRedirect('dashboard')
+    else:
+        try:
+            config_rfm_obj = ConfigRFM.objects.get(user=request.user)
+            form = ConfigRFMForm(instance=config_rfm_obj)
+        except Exception as e:
+            print(e)
+            form = ConfigRFMForm()
+
+    return render(request, 'config_rfm.html', {'form': form})
+
+
+@login_required
 def customer_info_table_csv(request):
     # Show in a table all the information from customersinfo table, allowing CRUD to the user
     values = CustomersInfoCsv.objects.filter(user=request.user)
@@ -86,11 +117,13 @@ def customers_rfm_csv(request):
 def task_calculate_customers_info(request):
     # This will be a task, but for now I am using to test
     CustomersInfoAnalysis.objects.filter(user=request.user).delete()
-    CustomerInfoBoundary.objects.filter(user=request.user).delete()
+    # ConfigRFM.objects.filter(user=request.user).delete()
 
     values = CustomersInfoCsv.objects.filter(user=request.user).values("order_date", "order_value", "customer_email")
-
-    calculator = RFMCalculator(list(values), 3, 4, 13)
+    config_rfm_values = ConfigRFM.objects.filter(user=request.user).first()
+    calculator = RFMCalculator(list(values), config_rfm_values.score_boundary_frequency,
+                               config_rfm_values.score_boundary_monetary,
+                               config_rfm_values.limit_days)
     calculator.calculate_values()
     values = calculator.to_dict()
 
@@ -108,6 +141,7 @@ def task_calculate_customers_info(request):
         score_frequency=record["score_frequency"],
         score_monetary=record["score_monetary"],
         segment=record["segment"],
+        purchase_status=record["purchase_status"],
         user=request.user
     ) for record in values]
 
