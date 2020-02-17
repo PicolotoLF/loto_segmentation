@@ -1,17 +1,19 @@
 # Create your views here.
 import csv
+import json
 import io
 
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect, HttpResponse
+from django.db.models.aggregates import Count
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from google_spreadsheets.models import SpreadSheetInfo
+from .filters import CustomersInfoAnalysisFilter
 from .forms import UploadFileForm, UserForm, ConfigRFMForm
 from .models import CustomersInfoCsv, CustomersInfoAnalysis, CustomerInfoBoundary, ConfigRFM
-from .services import get_values_from_spreadsheet, RFMCalculator
+from .services import RFMCalculator
 
 
 def index(request):
@@ -48,9 +50,25 @@ def welcome_page(request):
 
 @login_required
 def dashboard(request):
+    # Quantidade de clientes por segmento
+    # Quantidade de cliente por status de compra
+    qtd_segments = CustomersInfoAnalysis.objects.filter(user=request.user) \
+        .all().values("segment__title").annotate(qtd=Count('segment'))
+
+    qtd_purcharse_status = CustomersInfoAnalysis.objects.filter(user=request.user) \
+        .all().values("purchase_status__title").annotate(qtd=Count('purchase_status'))
+
+    qtd_customers = CustomersInfoAnalysis.objects.filter(user=request.user).count()
+
     values = CustomerInfoBoundary.objects.filter(user=request.user).first()
-    return render(request, "example_dashboard.html", {"boundary_frequency": values.boundary_frequency,
-                                                      "boundary_monetary": values.boundary_monetary})
+
+    return render(request, "example_dashboard.html", {
+        "qtd_purchase_status": json.dumps(list(qtd_purcharse_status)),
+        "qtd_segments": json.dumps(list(qtd_segments)),
+        "boundary_frequency": int(values.boundary_frequency),
+        "boundary_monetary": values.boundary_monetary,
+        "qtd_customers": qtd_customers
+    })
 
 
 @login_required
@@ -80,7 +98,8 @@ def config_rfm(request):
         form = ConfigRFMForm(request.POST)
         if form.is_valid():
             # ** form.cleaned_data,
-            new_config_rfm, created = ConfigRFM.objects.update_or_create(user=request.user, defaults={**form.cleaned_data})
+            new_config_rfm, created = ConfigRFM.objects.update_or_create(user=request.user,
+                                                                         defaults={**form.cleaned_data})
             # if created is False:
             #     new_config_rfm = ConfigRFM.objects.create(**form.cleaned_data, user=request.user)
 
@@ -98,25 +117,18 @@ def config_rfm(request):
 
 
 @login_required
-def customer_info_table_csv(request):
-    # Show in a table all the information from customersinfo table, allowing CRUD to the user
-    values = CustomersInfoCsv.objects.filter(user=request.user)
-
-    return render(request, 'customer_info_table.html', {"values": values})
-
-
-@login_required
 def customers_rfm_csv(request):
     # SpreadSheet it's need's to be a factory
     values = CustomersInfoAnalysis.objects.select_related("segment").filter(user=request.user).all()
-
-    return render(request, 'customers_info.html', {"values": values})
+    values_filter = CustomersInfoAnalysisFilter(request.GET, queryset=values)
+    return render(request, 'customers_info.html', {"values_filter": values_filter})
 
 
 @login_required
 def task_calculate_customers_info(request):
     # This will be a task, but for now I am using to test
     CustomersInfoAnalysis.objects.filter(user=request.user).delete()
+    CustomerInfoBoundary.objects.filter(user=request.user).delete()
     # ConfigRFM.objects.filter(user=request.user).delete()
 
     values = CustomersInfoCsv.objects.filter(user=request.user).values("order_date", "order_value", "customer_email")

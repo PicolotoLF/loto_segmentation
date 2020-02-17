@@ -1,14 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>upload csv</title>
-</head>
-<body>
- <form action="{% url 'upload_customer_info_csv' %}" method="post" enctype="multipart/form-data" >
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Upload">
-</form>
-</body>
-</html>
+{% extends "base_generic.html" %}
+
+{% block body %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Upload Data from CSV</h5>
+                </div>
+                <div class="card-body">
+
+                    <form action="{% url 'upload_customer_info_csv' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form }}
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-fill btn-primary">Upload</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+$('#upload_csv').addClass("active")
+</script>
+{% endblock %}

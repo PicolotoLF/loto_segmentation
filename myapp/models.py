@@ -16,7 +16,7 @@ class Segments(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, null=False)
 
-    def __repr__(self):
+    def __str__(self):
         return self.title
 
 
@@ -24,7 +24,7 @@ class PurchaseStatus(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, null=False)
 
-    def __repr__(self):
+    def __str__(self):
         return self.title
 
 
@@ -50,7 +50,11 @@ class CustomersInfoAnalysis(models.Model):
 class CustomerInfoBoundary(models.Model):
     boundary_frequency = models.FloatField()
     boundary_monetary = models.FloatField()
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
 
 
 class ConfigRFM(models.Model):
