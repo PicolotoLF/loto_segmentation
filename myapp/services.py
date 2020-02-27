@@ -208,7 +208,9 @@ class RFMCalculator:
                 return Segments.objects.get(title="Fiéis")
             else:
                 # Novo Colegas
-                return Segments.objects.get(title="Novos")
+                # TODO: Inserir no banco
+                return Segments.objects.get(title="Novos Fiéis")
         else:
-            # Casuais
-            return Segments.objects.get(title="Casuais")
+            if self._is_above_first_purchase(element["first_purchase"]):
+                return Segments.objects.get(title="Casuais")
+            return Segments.objects.get(title="Novos Casuais")

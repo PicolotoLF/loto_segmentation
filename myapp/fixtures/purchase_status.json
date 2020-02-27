@@ -1,0 +1,44 @@
+  [
+    {
+    "model": "myapp.purchaseStatus",
+    "pk": 1,
+    "fields": {
+      "title": "Recente"
+    }
+  },
+  {
+    "model": "myapp.purchaseStatus",
+    "pk": 2,
+    "fields": {
+      "title": "Em dia"
+    }
+  },
+  {
+    "model": "myapp.purchaseStatus",
+    "pk": 3,
+    "fields": {
+      "title": "Atraso"
+    }
+  },
+  {
+    "model": "myapp.purchaseStatus",
+    "pk": 4,
+    "fields": {
+      "title": "Atraso Crítico"
+    }
+  },
+  {
+    "model": "myapp.purchaseStatus",
+    "pk": 5,
+    "fields": {
+      "title": "Perdido"
+    }
+  },
+  {
+    "model": "myapp.purchaseStatus",
+    "pk": 6,
+    "fields": {
+      "title": "Sem Dados"
+    }
+  }
+]

@@ -20,7 +20,8 @@
     <link href="{% static 'assets/css/black-dashboard.css' %}" rel="stylesheet"/>
     <link href="{% static 'assets/css/base-generic.css' %}" rel="stylesheet"/>
 
-    <script src="{% static 'assets/js/base-generic.js' %}"></script>
+    <script src="{% static 'assets/js/helper.js' %}"></script>
+
     {% block head %}
     {% endblock %}
 </head>
@@ -45,7 +46,7 @@
                     </a>
                 </li>
                 <li class="nav-item" id="segments_information">
-                    <a class="nav-link" href="{% url 'customers_rfm_csv' %}">
+                    <a class="nav-link" href="{% url 'table_customer_info_analysis' %}">
                         <i class="tim-icons icon-bullet-list-67"></i>
                         <p>Segments Information</p>
                     </a>
@@ -87,6 +88,11 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-right dropdown-navbar">
                                 <li class="nav-link"><a href="#" class="nav-item dropdown-item">Last updated: </a></li>
+                                <li>
+                                    <button class="btn btn-info " onclick="calculateSegments()">
+                                        Calculate Segments
+                                    </button>
+                                </li>
                             </ul>
                         </li>
                         <li class="dropdown nav-item">
@@ -145,6 +151,7 @@
 <!--   Core JS Files   -->
 {% load static %}
 <!--   Core JS Files   -->
+
 <script src="{% static 'assets/js/core/jquery.min.js' %}"></script>
 <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
 <script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
@@ -154,13 +161,14 @@
 <!--  Notifications Plugin    -->
 <script src="{% static 'assets/js/plugins/bootstrap-notify.js' %}"></script>
 <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="{% static 'assets/js/black-dashboard.min.js?v=1.0.0' %}"></script>
+<script src="{% static 'assets/js/black-dashboard.min.js' %}"></script>
 <!-- Bootstrap core JavaScript -->
+
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.12.0/js/mdb.min.js"></script>
 
-
+<script src="{% static 'assets/js/base-generic.js' %}"></script>
 
 
 {% block scripts %}

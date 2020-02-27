@@ -1,5 +1,8 @@
 {% extends "base_generic.html" %}
+{% block head %}
+{% load static %}
 
+{% endblock %}
 {% block body %}
 <div class="content">
     <div class="row">
@@ -45,7 +48,9 @@
                             Monetary Boundary
                         </h4>
 
-                        <h3 class="card-title" id="monetary_card"></h3>
+                        <h3 class="card-title" id="monetary_card">
+                            <script>formataDinheiro({{ boundary_monetary }})</script>
+                        </h3>
                     </div>
                 </div>
             </div>
@@ -90,35 +95,18 @@
 
 {% endblock %}
 {% block scripts %}
+{% if ensure_calculate %}
+<script>
+    showNotification('top','center', 'warning', 'Remember to calculate the segments!')
+</script>
+{% endif %}
+
 <script>
 $('#dashboard').addClass("active")
 $(document).ready(function() {
     makeSegmentPie({{ qtd_segments|safe }});
     makePurchaseStatusLine({{ qtd_purchase_status|safe }});
-    $('#monetary_card').html(formataDinheiro({{ boundary_monetary }}))
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </script>
 {% load static %}
@@ -127,4 +115,5 @@ $(document).ready(function() {
 <script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/dark.js"></script>
 <script type="text/javascript" src="https://www.amcharts.com/lib/3/serial.js"></script>
 <script type="text/javascript" src="{% static 'assets/js/dashboard.js' %}"></script>
+
 {% endblock %}

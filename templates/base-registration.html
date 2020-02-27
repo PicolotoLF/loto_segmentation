@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8"/>
+    {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet"/>
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.12.0/css/mdb.min.css" rel="stylesheet">
+    <!-- Nucleo Icons -->
+    <link href="{% static 'assets/css/nucleo-icons.css' %}" rel="stylesheet"/>
+    <!-- CSS Files -->
+    <link href="{% static 'assets/css/black-dashboard.css' %}" rel="stylesheet"/>
+    <link href="{% static 'assets/css/base-generic.css' %}" rel="stylesheet"/>
+
+    <script src="{% static 'assets/js/helper.js' %}"></script>
+
+    {% block head %}
+    {% endblock %}
+</head>
+
+<body class="">
+{% block body %}
+{% endblock %}
+<footer class="footer">
+    <div class="container-fluid">
+
+        <div class="copyright float-right">
+            &copy;
+            <script>
+              document.write(new Date().getFullYear())
+
+
+            </script>
+            , Lot Solutions.
+        </div>
+    </div>
+</footer>
+</body>
+<!--   Core JS Files   -->
+{% load static %}
+<!--   Core JS Files   -->
+
+<script src="{% static 'assets/js/core/jquery.min.js' %}"></script>
+<script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+<script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/perfect-scrollbar.jquery.min.js' %}"></script>
+<!-- Chart JS -->
+<script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+<!--  Notifications Plugin    -->
+<script src="{% static 'assets/js/plugins/bootstrap-notify.js' %}"></script>
+<!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="{% static 'assets/js/black-dashboard.min.js' %}"></script>
+<!-- Bootstrap core JavaScript -->
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.12.0/js/mdb.min.js"></script>
+
+<script src="{% static 'assets/js/base-generic.js' %}"></script>
+
+
+{% block scripts %}
+{% endblock %}
+
+</body>
+
+</html>

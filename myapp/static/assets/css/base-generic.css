@@ -1,0 +1,9 @@
+.logo-image{
+    max-width: 130px
+}
+
+.form-check-label > input {
+    position: inherit !important;
+    opacity: inherit !important;
+}
+
