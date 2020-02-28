@@ -29,7 +29,7 @@ $('#upload_csv').addClass("active")
 </script>
 {% if wrong_csv %}
 <script>
-    showNotification('top','center', 'danger', "This CSV file it's not valid.")
+    showNotification('top','center', 'danger', "{{ message }}")
 </script>
 {% endif %}
 {% endblock %}

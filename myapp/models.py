@@ -7,7 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class CustomersInfoCsv(models.Model):
     order_date = models.DateField(null=False)
-    order_value = models.IntegerField(null=False)
+    order_value = models.DecimalField(max_digits=10, decimal_places=2)
     customer_email = models.EmailField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 

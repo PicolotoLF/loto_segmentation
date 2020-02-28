@@ -36,7 +36,7 @@ class RFMCalculator:
     def _create_dataframe(self):
         self._df = pd.DataFrame(list(self.values))
         self._df["order_date_min"] = self._df["order_date"]
-        self._df["avg_monetary"] = self._df["order_value"]
+        self._df["avg_monetary"] = self._df["order_value"].astype(float)
         self._df["frequency"] = self._df["customer_email"]
 
         self._df_date = self._df[["customer_email", "order_date"]]

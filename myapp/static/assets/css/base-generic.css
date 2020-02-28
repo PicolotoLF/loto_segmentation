@@ -7,3 +7,12 @@
     opacity: inherit !important;
 }
 
+[data-status="Perdido"] {
+    color: #fd5d93 !important;
+}
+[data-status="Atraso Crítico"] {
+    color: #ff8d72 !important;
+}
+
+
+

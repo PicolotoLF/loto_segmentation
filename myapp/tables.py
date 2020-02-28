@@ -11,7 +11,11 @@ class CustomersInfoAnalysisTable(tables.Table):
     avg_monetary = tables.Column(verbose_name='Avg. Monetary', orderable=False)
     first_purchase = tables.Column(verbose_name='First Purchase', orderable=False)
     avg_days = tables.Column(verbose_name='Avg. Days', orderable=False)
-    purchase_status__title = tables.Column(verbose_name='Purchase Status', orderable=False)
+    purchase_status__title = tables.Column(verbose_name='Purchase Status', orderable=False, attrs={
+        "td": {
+            'data-status': lambda value: value
+        }
+    })
     segment__title = tables.Column(verbose_name='Segment', orderable=False)
 
     def render_monetary(self, value):

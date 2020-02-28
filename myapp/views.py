@@ -4,6 +4,7 @@ import io
 import json
 
 from django.contrib.auth import login
+from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models.aggregates import Count
@@ -95,19 +96,28 @@ def upload_file(request):
             csv_file_buffer = io.TextIOWrapper(request.FILES["file"])
             csv_file = csv.DictReader(csv_file_buffer, delimiter=",")
             if "csv" not in str(upload_file_form.files["file"]):
-                return render(request, 'upload_customer_info_csv.html', {'form': form, "wrong_csv": True})
+                return render(request, 'upload_customer_info_csv.html', {'form': form,
+                                                                         "wrong_csv": True,
+                                                                         "message": "Este arquivo não é CSV."})
 
             if "order_date" not in csv_file.fieldnames or "order_value" not in csv_file.fieldnames \
                     or "customer_email" not in csv_file.fieldnames:
-                return render(request, 'upload_customer_info_csv.html', {'form': form, "wrong_csv": True})
+                return render(request, 'upload_customer_info_csv.html', {'form': form,
+                                                                         "wrong_csv": True,
+                                                                         "message": "Está faltando algum header."})
 
             CustomersInfoCsv.objects.filter(user=request.user).delete()
             for info in csv_file:
-                print(info["customer_email"])
-                new_customer_info = CustomersInfoCsv.objects.create(order_date=info["order_date"],
-                                                                    order_value=info["order_value"],
-                                                                    customer_email=info["customer_email"],
-                                                                    user=request.user)
+                try:
+                    new_customer_info = CustomersInfoCsv.objects.create(order_date=info["order_date"],
+                                                                        order_value=info["order_value"],
+                                                                        customer_email=info["customer_email"],
+                                                                        user=request.user)
+                except ValidationError:
+                    return render(request, 'upload_customer_info_csv.html', {'form': form,
+                                                                             "wrong_csv": True,
+                                                                             "message": "Os valores da coluna order_value possuem vírgula."})
+
                 new_customer_info.save()
 
             return HttpResponseRedirect("config_rfm")
