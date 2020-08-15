@@ -80,10 +80,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'lot_target',
-        'HOST': '127.0.0.1',
+        'HOST': 'LucasPicoloto.mysql.pythonanywhere-services.com',
         'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': 'root',
+        'USER': 'LucasPicoloto',
+        'PASSWORD': 'loto123',
     }
 }
 
