@@ -1,0 +1,119 @@
+{% extends "base_generic.html" %}
+{% block head %}
+{% load static %}
+
+{% endblock %}
+{% block body %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6 text-left">
+                            <!--                            <h5 class="card-category">Segments</h5>-->
+                            <h2 class="card-title">Segments Distribution</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="char-area">
+                        <div id="segment-pie" style="width: 100%; height: 400px; background-color: #27293D;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-4">
+            <div class="col-md-12">
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h4 class="card-title">
+                            <i class="tim-icons icon-heart-2 text-primary">
+                            </i>
+                            Frequency Boundary
+                        </h4>
+
+
+                        <h3 class="card-title">{{ boundary_frequency }}
+                            <small></small>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h4 class="card-title">
+                            <i class="tim-icons icon-money-coins text-success"></i>
+                            Monetary Boundary
+                        </h4>
+
+                        <h3 class="card-title" id="monetary_card">
+                            <script>formataDinheiro({{ boundary_monetary }})</script>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="card card-stats">
+                    <div class="card-header">
+                        <h4 class="card-title">
+                            <i class="tim-icons icon-shape-star text-info"></i>
+                            Quantity of customers
+                        </h4>
+
+                        <h3 class="card-title" >{{ qtd_customers }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-6 text-left">
+                            <!--                            <h5 class="card-category">Segments</h5>-->
+                            <h2 class="card-title">Purchase Status Distribution</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="char-area">
+                        <div id="purchase-status-line"
+                             style="width: 100%; height: 400px; background-color: #27293D;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+{% block scripts %}
+{% if ensure_calculate %}
+<script>
+    showNotification('top','center', 'warning', 'Remember to calculate the segments!')
+</script>
+{% endif %}
+
+<script>
+$('#dashboard').addClass("active")
+$(document).ready(function() {
+    makeSegmentPie({{ qtd_segments|safe }});
+    makePurchaseStatusLine({{ qtd_purchase_status|safe }});
+});
+
+</script>
+{% load static %}
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/pie.js"></script>
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/dark.js"></script>
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script type="text/javascript" src="{% static 'assets/js/dashboard.js' %}"></script>
+
+{% endblock %}
